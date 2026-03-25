@@ -1,8 +1,10 @@
+import { useTasks } from '@/contexts/TaskContext';
 import { Feather, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
+    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -15,9 +17,28 @@ import {
 
 export default function NewTaskScreen() {
   const router = useRouter();
+  const { addTask } = useTasks();
   const [taskName, setTaskName] = useState('');
   const [taskDate, setTaskDate] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('users');
+
+  const handleSave = async () => {
+    if (!taskName.trim() || !taskDate.trim()) {
+      Alert.alert('Erro', 'Por favor, preencha o nome e a data da tarefa.');
+      return;
+    }
+
+    await addTask({
+      name: taskName.trim(),
+      date: taskDate.trim(),
+      category: selectedCategory,
+      completed: false,
+    });
+
+    Alert.alert('Sucesso', 'Tarefa criada com sucesso!', [
+      { text: 'OK', onPress: () => router.push('/(tabs)') }
+    ]);
+  };
 
   const categories = [
     { id: 'users', icon: 'users', family: Feather, color: '#00A8FF' },
@@ -97,7 +118,7 @@ export default function NewTaskScreen() {
           </View>
 
           {/* Botão de Salvar */}
-          <TouchableOpacity style={styles.saveButtonWrapper} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.saveButtonWrapper} activeOpacity={0.8} onPress={handleSave}>
             <LinearGradient 
               colors={['#D1B5ED', '#C2A1E8']} 
               style={styles.saveButton}

@@ -1,29 +1,40 @@
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export default function HomeScreen() {
+export default function LoginScreen() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleStart = () => {
-    // Navega para a tela de login. 
-    // Certifique-se de criar o arquivo app/login.tsx futuramente
-    router.push('/login'); 
+  const handleLogin = () => {
+    // Validação básica
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+      return;
+    }
+
+    // Simulação de login (pode ser substituído por autenticação real)
+    if (email === 'admin' && password === 'admin') {
+      router.push('/explore');
+    } else {
+      Alert.alert('Erro', 'Email ou senha incorretos.');
+    }
   };
 
   return (
-    <LinearGradient 
-      colors={['#CBA8ED', '#B085E5']} 
+    <LinearGradient
+      colors={['#CBA8ED', '#B085E5']}
       style={styles.container}
     >
       {/* Background Curvo Superior */}
-      <LinearGradient 
-        colors={['#D4BBF0', '#CBA8ED']} 
-        style={styles.topCurve} 
+      <LinearGradient
+        colors={['#D4BBF0', '#CBA8ED']}
+        style={styles.topCurve}
       />
 
       <View style={styles.content}>
@@ -42,30 +53,48 @@ export default function HomeScreen() {
               </LinearGradient>
             </LinearGradient>
           </View>
-          <Text style={styles.title}>Organiza A.I</Text>
+          <Text style={styles.title}>Login</Text>
         </View>
 
-        {/* Textos Centrais e Ícone */}
-        <View style={styles.middleContainer}>
-          <Text style={styles.subtitle}>
-            Organize sua{'\n'}vida com{'\n'}inteligência!
-          </Text>
-          <View style={styles.messageIconContainer}>
-            <Feather name="message-square" size={40} color="rgba(255, 255, 255, 0.9)" />
-            <View style={styles.checkIconOverlay}>
-              <Feather name="check" size={16} color="rgba(255, 255, 255, 0.9)" />
-            </View>
+        {/* Formulário de Login */}
+        <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            <Feather name="mail" size={20} color="#A98CCF" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#A98CCF"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
           </View>
-        </View>
 
-        {/* Botão Começar */}
-        <TouchableOpacity 
-          style={styles.button}
-          activeOpacity={0.8}
-          onPress={handleStart}
-        >
-          <Text style={styles.buttonText}>Começar</Text>
-        </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <Feather name="lock" size={20} color="#A98CCF" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Senha"
+              placeholderTextColor="#A98CCF"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+
+          {/* Botão Entrar */}
+          <TouchableOpacity
+            style={styles.button}
+            activeOpacity={0.8}
+            onPress={handleLogin}
+          >
+            <Text style={styles.buttonText}>Entrar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </LinearGradient>
   );
@@ -135,30 +164,37 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
-  middleContainer: {
+  formContainer: {
+    width: '100%',
+    maxWidth: 320,
     alignItems: 'center',
   },
-  subtitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    lineHeight: 36,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F4FD',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     marginBottom: 16,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  messageIconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-    marginTop: 10,
+  inputIcon: {
+    marginRight: 12,
   },
-  checkIconOverlay: {
-    position: 'absolute',
-    top: 10, // Ajuste para centralizar o check dentro do balão de mensagem
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#6D42A4',
+    fontWeight: '600',
   },
   button: {
     width: '100%',
-    maxWidth: 320,
     backgroundColor: '#EBE0F7',
     paddingVertical: 18,
     borderRadius: 30,
@@ -168,7 +204,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    marginBottom: 20,
+    marginTop: 20,
   },
   buttonText: {
     fontSize: 22,

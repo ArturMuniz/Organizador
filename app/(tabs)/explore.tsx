@@ -1,3 +1,4 @@
+import { Task, useTasks } from '@/contexts/TaskContext';
 import { Feather, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -5,6 +6,14 @@ import React from 'react';
 import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width } = Dimensions.get('window');
+
+// Mapeamento de categorias para ícones
+const categoryIcons: Record<string, { icon: string; family: any; color: string }> = {
+  users: { icon: 'users', family: Feather, color: '#00A8FF' },
+  dumbbell: { icon: 'dumbbell', family: MaterialCommunityIcons, color: '#FF4DE4' },
+  heart: { icon: 'heart', family: FontAwesome, color: '#00A8FF' },
+  briefcase: { icon: 'briefcase', family: Feather, color: '#8453CC' },
+};
 
 // --- Componentes Reutilizáveis ---
 
@@ -15,29 +24,27 @@ const StatCard = ({ number, label }: { number: string; label: string }) => (
   </View>
 );
 
-const TaskCard = ({ 
-  iconName, 
-  IconFamily, 
-  iconColor, 
-  title, 
-  subtitle, 
-  isBlueText = false 
-}: any) => (
-  <TouchableOpacity style={styles.taskCard} activeOpacity={0.8}>
-    <View style={styles.taskCardLeft}>
-      <View style={styles.taskIconContainer}>
-        <IconFamily name={iconName} size={24} color={iconColor} />
+const TaskCard = ({ task }: { task: Task }) => {
+  const categoryInfo = categoryIcons[task.category] || categoryIcons.users;
+  const IconFamily = categoryInfo.family;
+
+  return (
+    <TouchableOpacity style={styles.taskCard} activeOpacity={0.8}>
+      <View style={styles.taskCardLeft}>
+        <View style={styles.taskIconContainer}>
+          <IconFamily name={categoryInfo.icon as any} size={24} color={categoryInfo.color} />
+        </View>
+        <View>
+          <Text style={styles.taskTitle}>
+            {task.name}
+          </Text>
+          <Text style={styles.taskSubtitle}>{task.date}</Text>
+        </View>
       </View>
-      <View>
-        <Text style={[styles.taskTitle, isBlueText && styles.taskTitleBlue]}>
-          {title}
-        </Text>
-        <Text style={styles.taskSubtitle}>{subtitle}</Text>
-      </View>
-    </View>
-    <Feather name="chevron-right" size={24} color="#A98CCF" />
-  </TouchableOpacity>
-);
+      <Feather name="chevron-right" size={24} color="#A98CCF" />
+    </TouchableOpacity>
+  );
+};
 
 const Separator = () => <View style={styles.separator} />;
 
@@ -45,6 +52,15 @@ const Separator = () => <View style={styles.separator} />;
 
 export default function ExploreScreen() {
   const router = useRouter();
+  const { tasks, loading } = useTasks();
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ color: 'white', textAlign: 'center', marginTop: 100 }}>Carregando...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -68,43 +84,28 @@ export default function ExploreScreen() {
 
       {/* Cards de Estatísticas */}
       <View style={styles.statsRow}>
-        <StatCard number="12" label="Tarefas" />
-        <StatCard number="20" label="Pendentes" />
-        <StatCard number="3" label="Concluídas" />
+        <StatCard number={tasks.length.toString()} label="Tarefas" />
+        <StatCard number={tasks.filter(t => !t.completed).length.toString()} label="Pendentes" />
+        <StatCard number={tasks.filter(t => t.completed).length.toString()} label="Concluídas" />
       </View>
 
       {/* Lista de Tarefas */}
       <View style={styles.listContainer}>
-        <Text style={styles.sectionTitle}>Proximas Tarefas</Text>
+        <Text style={styles.sectionTitle}>Próximas Tarefas</Text>
         
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          <TaskCard 
-            IconFamily={Feather}
-            iconName="users" 
-            iconColor="#00A8FF" 
-            title="Reunião com a Chef" 
-            subtitle="10 Julho" 
-          />
-          <Separator />
-          
-          <TaskCard 
-            IconFamily={MaterialCommunityIcons}
-            iconName="dumbbell" 
-            iconColor="#FF4DE4" 
-            title="Treino de Musculação" 
-            subtitle="20 Julho" 
-          />
-          <Separator />
-          
-          <TaskCard 
-            IconFamily={FontAwesome}
-            iconName="heart" 
-            iconColor="#00A8FF" 
-            title="Sair com o Crush" 
-            subtitle="30 Julho" 
-            isBlueText={true}
-          />
-          <Separator />
+          {tasks.length === 0 ? (
+            <Text style={{ color: '#A98CCF', textAlign: 'center', marginTop: 50 }}>
+              Nenhuma tarefa ainda. Adicione uma nova tarefa!
+            </Text>
+          ) : (
+            tasks.map((task, index) => (
+              <React.Fragment key={task.id}>
+                <TaskCard task={task} />
+                {index < tasks.length - 1 && <Separator />}
+              </React.Fragment>
+            ))
+          )}
         </ScrollView>
       </View>
 
