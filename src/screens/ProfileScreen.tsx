@@ -11,11 +11,15 @@ const isSmallScreen = width < 400;
 const isLargeScreen = width > 900;
 
 export const ProfileScreen: React.FC = () => {
-  const { user, loading, updateUser, logout } = useUser();
+  const { user, loading, updateUser, logout, changePassword } = useUser();
   const { notificationsEnabled, setTaskNotificationsEnabled } = useTasks();
   const router = useRouter();
   const [genderModalVisible, setGenderModalVisible] = useState(false);
   const [updatingNotifications, setUpdatingNotifications] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const genderOptions = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
 
@@ -31,6 +35,34 @@ export const ProfileScreen: React.FC = () => {
         },
       },
     ]);
+  };
+
+  const handleChangePassword = async () => {
+    if (!currentPassword.trim()) {
+      Alert.alert('Erro', 'Senha atual obrigatória.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      Alert.alert('Erro', 'Nova senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      Alert.alert('Erro', 'A confirmação não confere com a nova senha.');
+      return;
+    }
+
+    setChangingPassword(true);
+    const result = await changePassword(currentPassword, newPassword);
+    setChangingPassword(false);
+
+    if (result.success) {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      Alert.alert('Sucesso', 'Senha alterada com sucesso.');
+    } else {
+      Alert.alert('Erro', result.message || 'Não foi possível alterar a senha.');
+    }
   };
 
   const isExpoGoAndroid = Platform.OS === 'android' && Constants.appOwnership === 'expo';
@@ -108,6 +140,56 @@ export const ProfileScreen: React.FC = () => {
             trackColor={{ false: '#D8D4E8', true: '#BEB3F4' }}
             thumbColor={notificationsEnabled ? '#6F5AE0' : '#F4F3FA'}
           />
+        </View>
+
+        <View style={styles.passwordSection}>
+          <Text style={styles.subsectionTitle}>Alterar senha</Text>
+
+          <Text style={styles.label}>Senha atual</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Senha atual"
+            placeholderTextColor="#9C97B9"
+            value={currentPassword}
+            onChangeText={setCurrentPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <Text style={styles.label}>Nova senha</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nova senha"
+            placeholderTextColor="#9C97B9"
+            value={newPassword}
+            onChangeText={setNewPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <Text style={styles.label}>Confirmar nova senha</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirmar nova senha"
+            placeholderTextColor="#9C97B9"
+            value={confirmNewPassword}
+            onChangeText={setConfirmNewPassword}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+
+          <TouchableOpacity
+            style={styles.passwordButton}
+            onPress={handleChangePassword}
+            disabled={changingPassword}
+          >
+            <Text style={styles.passwordButtonText}>
+              {changingPassword ? 'Alterando...' : 'Alterar senha'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.buttonGroup}>
@@ -316,6 +398,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: isSmallScreen ? 8 : 12,
     marginTop: 32,
+  },
+  passwordSection: {
+    marginTop: 32,
+  },
+  subsectionTitle: {
+    color: '#3D2C8D',
+    fontSize: isSmallScreen ? 16 : 18,
+    fontWeight: '800',
+    marginBottom: 16,
+  },
+  passwordButton: {
+    flex: 1,
+    backgroundColor: '#6F5AE0',
+    borderRadius: 18,
+    paddingVertical: isSmallScreen ? 12 : 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    shadowColor: '#6F5AE0',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  passwordButtonText: {
+    color: 'white',
+    fontSize: isSmallScreen ? 14 : 16,
+    fontWeight: '700',
   },
   saveButton: {
     flex: 1,

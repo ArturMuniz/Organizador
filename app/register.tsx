@@ -7,27 +7,46 @@ import { useUser } from '../src/hooks/useUser';
 
 const { width, height } = Dimensions.get('window');
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const router = useRouter();
-  const { login } = useUser();
+  const { register } = useUser();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+  const handleRegister = async () => {
+    if (!name.trim()) {
+      Alert.alert('Erro', 'Por favor, informe seu nome.');
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert('Erro', 'Por favor, informe seu email.');
+      return;
+    }
+    if (!password.trim() || password.length < 6) {
+      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Erro', 'A confirmação deve ser igual à senha.');
       return;
     }
 
     setIsSubmitting(true);
-    const result = await login(email, password);
+    const result = await register(name, email, password);
     setIsSubmitting(false);
 
     if (result.success) {
-      router.replace('/explore');
+      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!', [
+        {
+          text: 'Ir para login',
+          onPress: () => router.replace('/login'),
+        },
+      ]);
     } else {
-      Alert.alert('Erro', result.message || 'Email ou senha incorretos.');
+      Alert.alert('Erro', result.message || 'Não foi possível cadastrar.');
     }
   };
 
@@ -52,14 +71,27 @@ export default function LoginScreen() {
                 colors={['#9254DC', '#B685E6']}
                 style={styles.logoInner}
               >
-                <Feather name="check" size={40} color="white" />
+                <Feather name="user" size={40} color="white" />
               </LinearGradient>
             </LinearGradient>
           </View>
-          <Text style={styles.title}>Login</Text>
+          <Text style={styles.title}>Cadastro</Text>
         </View>
 
         <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            <Feather name="user" size={20} color="#A98CCF" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nome"
+              placeholderTextColor="#A98CCF"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              autoCorrect={false}
+            />
+          </View>
+
           <View style={styles.inputContainer}>
             <Feather name="mail" size={20} color="#A98CCF" style={styles.inputIcon} />
             <TextInput
@@ -88,19 +120,33 @@ export default function LoginScreen() {
             />
           </View>
 
+          <View style={styles.inputContainer}>
+            <Feather name="lock" size={20} color="#A98CCF" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirmar senha"
+              placeholderTextColor="#A98CCF"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+
           <TouchableOpacity
             style={styles.button}
             activeOpacity={0.8}
-            onPress={handleLogin}
+            onPress={handleRegister}
             disabled={isSubmitting}
           >
-            <Text style={styles.buttonText}>{isSubmitting ? 'Entrando...' : 'Entrar'}</Text>
+            <Text style={styles.buttonText}>{isSubmitting ? 'Cadastrando...' : 'Criar conta'}</Text>
           </TouchableOpacity>
 
           <View style={styles.footerRow}>
-            <Text style={styles.footerText}>Ainda não tem conta?</Text>
-            <TouchableOpacity onPress={() => router.push('/register')}>
-              <Text style={styles.footerLink}>Criar conta</Text>
+            <Text style={styles.footerText}>Já tem conta?</Text>
+            <TouchableOpacity onPress={() => router.push('/login')}>
+              <Text style={styles.footerLink}>Entrar</Text>
             </TouchableOpacity>
           </View>
         </View>
