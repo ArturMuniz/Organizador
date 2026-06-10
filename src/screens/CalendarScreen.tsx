@@ -1,7 +1,11 @@
 ﻿import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CalendarView } from '../components/Calendar/CalendarView';
 import { useTasks } from '../hooks/useTasks';
+
+const { width } = Dimensions.get('window');
+const isSmallScreen = width < 400;
+const isLargeScreen = width > 900;
 
 export const CalendarScreen: React.FC = () => {
   const { tasks, getTasksByDate, loading } = useTasks();
@@ -64,23 +68,23 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     color: '#6F5AE0',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: '600',
   },
   screenTitle: {
-    fontSize: 24,
+    fontSize: isSmallScreen ? 20 : 24,
     fontWeight: '800',
     color: '#3D2C8D',
-    marginTop: 24,
-    marginLeft: 24,
+    marginTop: isLargeScreen ? 24 : 16,
+    marginLeft: isLargeScreen ? 40 : isSmallScreen ? 12 : 24,
   },
   taskSection: {
     flex: 1,
-    marginTop: 16,
-    paddingHorizontal: 24,
+    marginTop: isSmallScreen ? 12 : 16,
+    paddingHorizontal: isLargeScreen ? 40 : isSmallScreen ? 12 : 24,
   },
   taskTitle: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: '700',
     color: '#422C99',
     marginBottom: 12,
@@ -91,24 +95,24 @@ const styles = StyleSheet.create({
   taskCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
-    padding: 16,
+    padding: isSmallScreen ? 12 : 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: 'rgba(141, 96, 198, 0.14)',
   },
   taskCardTitle: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: '700',
     color: '#2D1D83',
     marginBottom: 6,
   },
   taskCardDate: {
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 14,
     color: '#7D7A9A',
   },
   emptyText: {
     color: '#7D7A9A',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     marginTop: 10,
   },
 });

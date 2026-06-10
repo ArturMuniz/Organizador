@@ -10,6 +10,7 @@ interface UserContextType {
   user: User;
   loading: boolean;
   updateUser: (data: Partial<User>) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -46,8 +47,17 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const logout = async () => {
+    setUser({ name: '', gender: '' });
+    try {
+      await AsyncStorage.removeItem(USER_KEY);
+    } catch (error) {
+      console.error('Error removing user:', error);
+    }
+  };
+
   return (
-    <UserContext.Provider value={{ user, loading, updateUser }}>
+    <UserContext.Provider value={{ user, loading, updateUser, logout }}>
       {children}
     </UserContext.Provider>
   );

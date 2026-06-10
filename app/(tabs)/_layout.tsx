@@ -1,8 +1,8 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -20,34 +20,42 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="home" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Desempenho',
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="check" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="task"
+        options={{
+          title: 'Nova',
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="add-circle" color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Tarefas',
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="playlist-add-check" color={color} />,
         }}
       />
       <Tabs.Screen
         name="calendar"
         options={{
           title: 'Calendário',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calendar" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="calendar-today" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="task"
-        options={{
-          href: null, // Hide from tab bar
+          tabBarIcon: ({ color }) => <MaterialIcons size={28} name="person" color={color} />,
         }}
       />
     </Tabs>
