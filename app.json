@@ -40,13 +40,6 @@
           }
         }
       ],
-      [
-        "expo-notifications",
-        {
-          "color": "#6F5AE0",
-          "defaultChannel": "task-reminders"
-        }
-      ],
       "@react-native-community/datetimepicker"
     ],
     "experiments": {
