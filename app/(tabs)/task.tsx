@@ -1,20 +1,25 @@
+import { HybridDatePicker } from '@/components/HybridDatePicker';
 import { Task, useTasks } from '@/contexts/TaskContext';
 import { Feather, FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    Dimensions,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
+
+const { width } = Dimensions.get('window');
+const isSmallScreen = width < 400;
+const isLargeScreen = width > 900;
 
 export default function NewTaskScreen() {
   const router = useRouter();
@@ -23,7 +28,6 @@ export default function NewTaskScreen() {
   const [taskName, setTaskName] = useState('');
   const [taskDate, setTaskDate] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('users');
   const [isEditing, setIsEditing] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -42,13 +46,10 @@ export default function NewTaskScreen() {
     }
   }, [params.taskId, tasks]);
 
-  const handleDateChange = (event: any, date?: Date) => {
-    setShowDatePicker(false);
-    if (date) {
-      setSelectedDate(date);
-      const isoDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
-      setTaskDate(isoDate);
-    }
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+    const isoDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    setTaskDate(isoDate);
   };
 
   const handleDelete = () => {
@@ -158,33 +159,13 @@ export default function NewTaskScreen() {
           </View>
 
           {/* Input: Data/Hora */}
-          <View style={styles.inputContainer}>
-            <Feather name="calendar" size={20} color="#6D42A4" style={styles.inputIcon} />
-            <TouchableOpacity
-              style={styles.input}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={[styles.inputText, !selectedDate && { color: '#C2AEE0' }]}> 
-                {selectedDate
-                  ? selectedDate.toLocaleDateString('pt-BR', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                    })
-                  : 'Selecione a data'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate || new Date()}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-              minimumDate={new Date()}
-            />
-          )}
+          <HybridDatePicker
+            value={selectedDate}
+            onChange={handleDateChange}
+            minimumDate={new Date()}
+            placeholder="Selecione a data"
+            mode="date"
+          />
 
           {/* Seleção de Categoria */}
           <Text style={styles.categoryTitle}>Categoria</Text>
@@ -233,8 +214,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingHorizontal: isLargeScreen ? 40 : isSmallScreen ? 12 : 24,
+    paddingTop: isLargeScreen ? 40 : 60,
     paddingBottom: 20,
   },
   backButton: {
@@ -250,19 +231,22 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: isSmallScreen ? 18 : 22,
     fontWeight: '900',
     color: 'white',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: isLargeScreen ? 40 : isSmallScreen ? 12 : 20,
     paddingBottom: 40,
+    maxWidth: isLargeScreen ? 600 : undefined,
+    alignSelf: isLargeScreen ? 'center' : undefined,
+    width: isLargeScreen ? '100%' : undefined,
   },
   formCard: {
     backgroundColor: '#F4ECFC',
     borderRadius: 30,
-    padding: 24,
+    padding: isSmallScreen ? 16 : 24,
     marginTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -271,7 +255,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: isSmallScreen ? 16 : 20,
     fontWeight: '900',
     color: '#8453CC',
     marginBottom: 24,
@@ -296,17 +280,17 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#6D42A4',
     fontWeight: '600',
   },
   inputText: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#6D42A4',
     fontWeight: '600',
   },
   categoryTitle: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
     color: '#6D42A4',
     marginTop: 10,
@@ -317,11 +301,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 30,
+    gap: isSmallScreen ? 8 : 12,
   },
   categoryIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: isSmallScreen ? 48 : 56,
+    height: isSmallScreen ? 48 : 56,
+    borderRadius: isSmallScreen ? 24 : 28,
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
@@ -332,7 +317,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   categoryIconSelected: {
-    backgroundColor: '#9254DC', // Roxo escuro quando selecionado
+    backgroundColor: '#9254DC',
   },
   saveButtonWrapper: {
     marginTop: 10,
@@ -343,12 +328,12 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   saveButton: {
-    paddingVertical: 18,
+    paddingVertical: isSmallScreen ? 14 : 18,
     borderRadius: 30,
     alignItems: 'center',
   },
   saveButtonText: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: '900',
     color: '#8453CC',
   },

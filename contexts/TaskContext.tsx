@@ -15,6 +15,7 @@ interface TaskContextType {
   addTask: (task: Omit<Task, 'id'>) => Promise<void>;
   updateTask: (id: string, task: Omit<Task, 'id'>) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
+  toggleTaskCompleted: (id: string) => Promise<void>;
   reloadTasks: () => Promise<void>;
 }
 
@@ -30,7 +31,8 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const stored = await AsyncStorage.getItem(TASKS_KEY);
       if (stored) {
-        setTasks(JSON.parse(stored));
+        const parsed: Task[] = JSON.parse(stored);
+        setTasks(parsed.map(task => ({ ...task, completed: task.completed ?? false })));
       }
     } catch (error) {
       console.error('Error loading tasks:', error);
@@ -73,12 +75,32 @@ export const TaskProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const toggleTaskCompleted = async (id: string) => {
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    );
+    setTasks(updatedTasks);
+    try {
+      await AsyncStorage.setItem(TASKS_KEY, JSON.stringify(updatedTasks));
+    } catch (error) {
+      console.error('Error toggling task status:', error);
+    }
+  };
+
   useEffect(() => {
     loadTasks();
   }, []);
 
   return (
-    <TaskContext.Provider value={{ tasks, loading, addTask, updateTask, removeTask, reloadTasks: loadTasks }}>
+    <TaskContext.Provider value={{
+      tasks,
+      loading,
+      addTask,
+      updateTask,
+      removeTask,
+      toggleTaskCompleted,
+      reloadTasks: loadTasks,
+    }}>
       {children}
     </TaskContext.Provider>
   );
